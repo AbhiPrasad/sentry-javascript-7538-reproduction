@@ -5,41 +5,10 @@ const Sentry = require("@sentry/node");
 
 const express = require("express");
 
-const { Integrations } = require("@sentry/tracing");
-
-const { ProfilingIntegration } = require("@sentry/profiling-node");
-
 const app = express();
-
-Sentry.init({
-  dsn: "MY_DSN_HERE",
-
-  enabled: true,
-  debug: true,
-
-  instrumenter: "otel",
-
-  release: "testing",
-  environment: "sentry-reproduction",
-  tracesSampleRate: 1.0,
-
-  profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
-
-  beforeSend: (event) => {
-    console.log("Testing");
-    return event;
-  },
-
-  integrations: [
-    new Integrations.Express({ app }),
-    new Sentry.Integrations.Http({ tracing: true }),
-    new ProfilingIntegration(),
-  ],
-});
 
 // The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
-//app.use(Sentry.Handlers.tracingHandler());
 
 app.get("/", function (req, res) {
   Sentry.addBreadcrumb({
